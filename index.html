@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Notes - My Reading Library</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-book-open"></i> Book Notes</h1>
+                <p class="subtitle">A personal library of books I've read, inspired by <a href="https://sive.rs/book" target="_blank">Derek Sivers</a></p>
+                <p class="description">Track your reading, capture insights, and build your personal knowledge library.</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="controls-section">
+                <div class="stats">
+                    <div class="stat-card">
+                        <i class="fas fa-book"></i>
+                        <div>
+                            <span class="stat-number" id="total-books">0</span>
+                            <span class="stat-label">Books</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <div>
+                            <span class="stat-number" id="avg-rating">0.0</span>
+                            <span class="stat-label">Avg Rating</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" id="add-book-btn">
+                        <i class="fas fa-plus"></i> Add New Book
+                    </button>
+                    
+                    <div class="sort-controls">
+                        <label for="sort-select">Sort by:</label>
+                        <select id="sort-select" class="sort-select">
+                            <option value="rating-desc">Rating (High to Low)</option>
+                            <option value="date-desc">Date Read (Newest First)</option>
+                            <option value="date-asc">Date Read (Oldest First)</option>
+                            <option value="title-asc">Title (A-Z)</option>
+                            <option value="title-desc">Title (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="books-container" id="books-container">
+                <!-- Books will be dynamically inserted here -->
+                <div class="empty-state" id="empty-state">
+                    <i class="fas fa-book-reader"></i>
+                    <h3>Your book library is empty</h3>
+                    <p>Start by adding your first book using the "Add New Book" button.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Book Notes &copy; <span id="current-year">2024</span> | Data stored locally in your browser</p>
+            <div class="footer-links">
+                <button class="btn-link" id="export-btn"><i class="fas fa-download"></i> Export Data</button>
+                <button class="btn-link" id="import-btn"><i class="fas fa-upload"></i> Import Data</button>
+                <button class="btn-link" id="clear-btn"><i class="fas fa-trash"></i> Clear All</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Add/Edit Book Modal -->
+    <div class="modal" id="book-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Add New Book</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <form id="book-form">
+                <div class="form-group">
+                    <label for="book-title">Title *</label>
+                    <input type="text" id="book-title" required placeholder="e.g., Atomic Habits">
+                </div>
+                
+                <div class="form-group">
+                    <label for="book-author">Author *</label>
+                    <input type="text" id="book-author" required placeholder="e.g., James Clear">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="book-isbn">ISBN (optional)</label>
+                        <input type="text" id="book-isbn" placeholder="e.g., 9780735211292">
+                        <small class="help-text">Used to fetch book cover automatically</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="book-date">Date Read *</label>
+                        <input type="date" id="book-date" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="book-rating">Rating</label>
+                    <div class="rating-input" id="rating-stars">
+                        <span class="star" data-value="1"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="2"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="3"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="4"><i class="far fa-star"></i></span>
+                        <span class="star" data-value="5"><i class="far fa-star"></i></span>
+                    </div>
+                    <input type="hidden" id="book-rating" value="3">
+                </div>
+                
+                <div class="form-group">
+                    <label for="book-notes">Notes</label>
+                    <textarea id="book-notes" rows="4" placeholder="Key takeaways, insights, or memorable quotes..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="save-btn">Save Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content confirm-modal">
+            <h3 id="confirm-title">Confirm Action</h3>
+            <p id="confirm-message">Are you sure you want to proceed?</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
+                <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Data Modal -->
+    <div class="modal" id="import-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Book Data</h2>
+                <button class="close-btn" id="close-import-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="import-data">Paste JSON data:</label>
+                <textarea id="import-data" rows="6" placeholder='Paste exported JSON data here...'></textarea>
+                <small class="help-text">Make sure the JSON is valid and matches the expected format.</small>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" id="cancel-import">Cancel</button>
+                <button class="btn btn-primary" id="import-data-btn">Import Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
